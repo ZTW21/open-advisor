@@ -1,0 +1,52 @@
+# SQLite database — working store. JSON exports in data/exports/ ARE committed.
+data/finance.sqlite
+data/finance.sqlite-journal
+data/finance.sqlite-wal
+data/finance.sqlite-shm
+
+# DB backups — local only
+data/backups/
+
+# Python artifacts (Phase 1+)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets — never commit. Project shouldn't be writing these anyway.
+.env
+.env.local
+*.key
+*.pem
+credentials.json
+
+# Sync adapter credentials (SimpleFIN token, Plaid config).
+# Phase 12+. These live at 0600; double-belt and just never track them.
+data/secrets/
+
+# Raw bank statements are personal — don't push them anywhere.
+# JSON exports of aggregated transactions (data/exports/) ARE tracked;
+# the raw CSV/OFX/QFX files are not.
+transactions/inbox/*
+!transactions/inbox/.gitkeep
+transactions/processed/*
+!transactions/processed/.gitkeep

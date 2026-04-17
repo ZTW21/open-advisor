@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "open-advisor"
+version = "1.0.0"
+description = "An open-source AI financial advisor — deterministic CLI + markdown directory."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Financial Advisor Project" },
+]
+keywords = ["finance", "personal-finance", "budget", "ai-assistant"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+]
+dependencies = [
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+# `rich` gives prettier non-JSON output; the CLI runs fine without it.
+pretty = ["rich>=13.0.0"]
+# OFX/QFX import support.
+ofx = ["ofxtools>=0.9.0"]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+finance = "finance_advisor.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finance_advisor"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/finance_advisor/migrations" = "finance_advisor/migrations"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
