@@ -24,8 +24,8 @@ Once a month — on the 1st, covering the prior month — you produce a one-page
 
 ## Trigger
 
-- Scheduled: 1st of each month at 9am local (`0 9 1 * *`), wired via `routines/schedule.md` as the `finance-monthly-report` task.
 - On demand: user says "give me the monthly" or "how did March go?".
+- This advisor is pull-based. If the user wants a monthly every 1st, a calendar reminder to ask is the right tool.
 
 ## Flow
 

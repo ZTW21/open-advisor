@@ -20,7 +20,7 @@ This project is a fourth option: your data stays local, the files are human-read
 
 - **A guided onboarding routine.** The advisor walks you through who you are, what you own, what you owe, what you want, and what rules you want to live by. Everything it learns goes into editable markdown files.
 - **A deterministic CLI (`finance`)** that owns every number: imports, dedup, categorization, net worth, cash flow, rebalance drift, debt payoff schedules, budget vs. actual, fees audit, tax-pack generation, subscription detection, behavioral-mode classification.
-- **Scheduled briefs.** A one-sentence daily, a ~150-word weekly every Sunday evening, a monthly report, quarterly review, annual review. All observational — the advisor flags; you decide.
+- **Cadence routines on demand.** Ask for a one-sentence daily, a ~150-word weekly, a monthly report, a quarterly review, or an annual review. All observational — the advisor flags; you decide. Nothing runs on a schedule; you pull it when you want it.
 - **A structured memory system.** The advisor remembers your stated preferences, corrections, decisions, and observed patterns — and cites them when it advises.
 - **A master strategy (`STRATEGY.md`)** it maintains on your behalf, broken into Long arc / Next 12 months / Next 30 days. You never write this by hand.
 - **Advisory routines** for the hard moments: "can I afford this?", "should I sell in a crash?", "how do I pay down this debt?", "what should I do with this bonus?", "we just had a kid — what changes?"
@@ -87,14 +87,20 @@ cd my-money
 # 2. Install dependencies
 pip install -e .
 
-# 3. Initialize the database
+# 3. Initialize the database and hydrate the user templates
 bin/finance init
 
 # 4. Ask your AI assistant to run onboarding
 #    (see routines/onboarding.md — any Claude-capable assistant can follow it)
 ```
 
-After onboarding you'll have populated `profile.md`, `goals.md`, `rules.md`, `state/*`, one `accounts/*.md` per real account, and a first pass at `STRATEGY.md`. The advisor will offer to register the seven scheduled jobs (daily/weekly/monthly/quarterly/annual briefs, semiannual automation audit, nightly sync).
+`finance init` creates the SQLite database and copies the user-facing scaffolds (`STRATEGY.md`, `profile.md`, `principles.md`, `rules.md`, `goals.md`, `state/*.md`, `memory/MEMORY.md`) out of `templates/` and into the finance directory. It's idempotent and non-destructive — re-run it any time to pick up new templates without touching files you've already populated.
+
+After onboarding you'll have populated those scaffolds, one `accounts/*.md` per real account, and a first pass at `STRATEGY.md`. From there, cadence reports and advisory flows are pull-based — ask your assistant for "the weekly" or "can I afford X" and it follows the relevant routine.
+
+## Upgrading
+
+Framework updates land through `git pull upstream main`. Your populated files (`STRATEGY.md`, `memory/`, `state/`, `accounts/`, the database) are `.gitignore`'d at the repo root, so merges never touch them. See [`UPGRADING.md`](UPGRADING.md) for the full workflow.
 
 For a worked example of what a populated directory looks like, see [`examples/example-user/`](examples/example-user/).
 
@@ -107,7 +113,7 @@ You interact through your AI assistant, not the CLI directly. Typical turns:
 - "I got a $5k bonus. What should I do with it?" → follows `routines/windfall.md`, honoring any preferences in `memory/preferences/`.
 - "Can I afford a $2,400 laptop?" → follows `routines/afford.md`, checks your cushion / pace / goal impact.
 - "The market is down 15% — should I sell?" → follows `routines/loss-aversion.md`, quotes your own `rules.md` back at you verbatim.
-- "Give me the weekly" → runs the weekly routine; the scheduled version fires Sundays at 6pm local.
+- "Give me the weekly" → runs the weekly routine against the last seven days. Ask whenever you want one.
 
 If you want to poke the CLI directly, everything supports `--json` and has stable error codes. See `bin/finance --help`.
 

@@ -1,3 +1,62 @@
+# ---------------------------------------------------------------------------
+# User data — your answers, your plan, your balances.
+#
+# Everything below lives on your machine and is never pushed upstream. The
+# framework ships empty — `finance init` copies the scaffolds from templates/
+# into place on first run, and from there the files belong to you. This split
+# is what makes `git pull upstream main` safe for framework upgrades: your
+# populated files are ignored, so a merge never touches them.
+# See UPGRADING.md for the workflow.
+# ---------------------------------------------------------------------------
+
+# Root-level narrative files populated during onboarding.
+/STRATEGY.md
+/profile.md
+/principles.md
+/rules.md
+/goals.md
+
+# state/ snapshots (hydrated from templates/state/ by `finance init`).
+/state/*.md
+!/state/README.md
+
+# memory/ — framework ships READMEs at root and in each subdir; your memories
+# are yours. (Note: we DO track the scaffolded READMEs and onboarding.md.)
+/memory/MEMORY.md
+/memory/facts/*.md
+!/memory/facts/README.md
+/memory/preferences/*.md
+!/memory/preferences/README.md
+/memory/feedback/*.md
+!/memory/feedback/README.md
+/memory/decisions/*.md
+!/memory/decisions/README.md
+/memory/patterns/*.md
+!/memory/patterns/README.md
+/memory/watchlist/*.md
+!/memory/watchlist/README.md
+
+# accounts/ — one file per account, yours. TEMPLATE.md and README.md ship.
+/accounts/*.md
+!/accounts/README.md
+!/accounts/TEMPLATE.md
+
+# decisions/ — journal entries are yours. README ships.
+/decisions/*.md
+!/decisions/README.md
+
+# scenarios/ — what-ifs are yours. README ships.
+/scenarios/*.md
+!/scenarios/README.md
+
+# reports/ — always generated, always yours.
+/reports/*
+!/reports/README.md
+
+# ---------------------------------------------------------------------------
+# Working files — databases, caches, temporary artifacts.
+# ---------------------------------------------------------------------------
+
 # SQLite database — working store. JSON exports in data/exports/ ARE committed.
 data/finance.sqlite
 data/finance.sqlite-journal

@@ -29,11 +29,13 @@ charge should be a deliberate choice, not inertia.
 
 ## Trigger
 
-- Scheduled semiannually on April 1 and October 1 at 10am local (`0 10 1 4,10 *`), wired via `routines/schedule.md` as the `finance-automation-audit` task.
 - User-initiated: "audit my subscriptions" / "where's my money going?" /
   "what am I paying for monthly?"
 - Also triggered when `finance cashflow --by merchant` surfaces a surprising
   monthly recurring pattern during a weekly or monthly routine.
+- This advisor is pull-based. April 1 and October 1 are sensible semiannual
+  checkpoints — if the user wants the nudge, a recurring calendar event is
+  the right tool.
 
 ## Flow
 

@@ -21,8 +21,8 @@ Every morning you (the advisor) produce a single-sentence summary of yesterday. 
 
 ## Trigger
 
-- Scheduled: every morning at 8am local (`0 8 * * *`), wired via `routines/schedule.md` as the `finance-daily-brief` task.
-- On demand: user says "what happened yesterday" or "give me the daily."
+- On demand: user says "what happened yesterday," "give me the daily," or just asks what hit their accounts.
+- This advisor is pull-based — there is no scheduled daily brief. If the user wants one every morning, suggest a phone reminder or a shell alias for `finance report daily`.
 
 ## Flow
 

@@ -26,8 +26,8 @@ Once a quarter — in the first week after the quarter ends — you produce a ~2
 
 ## Trigger
 
-- Scheduled: 5th of each quarter's first month at 9am local (`0 9 5 1,4,7,10 *`), wired via `routines/schedule.md` as the `finance-quarterly-review` task.
 - On demand: user says "give me the quarterly" or "how was Q1?".
+- This advisor is pull-based. A quarterly calendar reminder on the 5th of Jan/Apr/Jul/Oct is the right way to remember.
 
 ## Flow
 

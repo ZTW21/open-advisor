@@ -23,8 +23,8 @@ Every Sunday evening (or Monday morning, whichever the user prefers) you produce
 
 ## Trigger
 
-- Scheduled: Sundays at 6pm local (`0 18 * * 0`), wired via `routines/schedule.md` as the `finance-weekly-brief` task.
-- On demand: user says "how did this week go" or "weekly recap".
+- On demand: user says "how did this week go," "weekly recap," or asks for a summary.
+- This advisor is pull-based — nothing runs on its own. If the user wants a weekly every Sunday, suggest a calendar reminder that nudges them to ask for it.
 
 ## Flow
 

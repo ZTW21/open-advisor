@@ -2,6 +2,50 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/); version numbers follow [SemVer](https://semver.org/).
 
+## [1.1.0] — 2026-04-17
+
+Pull-based cadence and an upgrade-safe layout. No data migration required — existing v1.0.0 installs pick this up with `git pull` and a re-run of `finance init`.
+
+### Removed
+
+- **Scheduled routines.** The seven cron jobs that ran on a clock (daily brief, weekly, monthly, quarterly, annual, automation audit, nightly sync) are gone. `routines/schedule.md` is deleted. Cadence reports now run when the user asks — every routine has an on-demand entry point.
+- **The `schedule` skill dependency.** Onboarding no longer wires cron tasks. If the user wants a nudge, they can set a calendar reminder or put `finance report weekly` in a shell alias.
+
+### Why
+
+The scheduled-task architecture only fired when Cowork was open and the user's Mac was awake — missed windows were common, and users got silent gaps rather than briefs. Pull-based is simpler, more reliable, and matches how people actually use the advisor: they ask when they want to know.
+
+### Added
+
+- **Template hydration on `finance init`.** The init command now copies scaffolds from `templates/` into the user's directory — skipping anything that already exists. This is idempotent: first run hydrates, second run reports everything as skipped, and a new template added upstream is picked up on the next run without touching existing files.
+- **`UPGRADING.md`.** The git-upstream-remote workflow for pulling framework releases without clobbering populated data, plus a rollback recipe.
+- **Root-level `.gitignore` for user data.** `STRATEGY.md`, `profile.md`, `principles.md`, `rules.md`, `goals.md`, `state/*.md`, `memory/MEMORY.md`, per-category memory files, `accounts/*.md`, `decisions/*.md`, `scenarios/*.md`, and `reports/*` are excluded at the repo root. `README.md` (and `TEMPLATE.md` for accounts) are negation-pattern exempted so upstream can still ship instructions.
+- **`state/README.md`.** Describes which files in `state/` are regenerated from the database and which are hand-maintained.
+
+### Changed
+
+- **Cadence routines** (`daily.md`, `weekly.md`, `monthly.md`, `quarterly.md`, `annual.md`, `automation-audit.md`, `onboarding.md`) — trigger blocks rewritten to describe the pull-based flow; any "scheduled: ..." lines removed.
+- **`CLAUDE.md`** — scheduling routing row replaced with guidance that reports are pull-based; Rule 5 clarified so writes to `reports/` and `memory/` bypass dry-run but never bypass the reasoning step.
+- **`README.md`** — onboarding path updated, "Cadence routines on demand" section added, pointer to `UPGRADING.md`.
+- **`pyproject.toml`** — `templates/` directory included in the wheel build.
+
+### Tests
+
+185 passing (178 carried over from v1.0.0 + 7 new tests covering `finance init` hydration: noop when `templates/` missing, root + nested template copy, non-destructive behavior, idempotent re-run, picks up new templates after an upgrade, byte-for-byte preservation).
+
+### Migration notes for v1.0.0 users
+
+```bash
+git remote add upstream https://github.com/<your-username>/open-advisor.git  # first time only
+git fetch upstream
+git merge upstream/main
+bin/finance init    # hydrates any new templates; doesn't touch existing files
+```
+
+If you had the scheduled tasks wired via the `schedule` skill, they're orphaned now — `list_scheduled_tasks` will show them; remove with `update_scheduled_task` or just let them expire. The report commands they ran (`finance report daily`, etc.) still work exactly the same on demand.
+
+---
+
 ## [1.0.0] — 2026-04-17
 
 First public release.

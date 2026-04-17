@@ -30,9 +30,9 @@ Once a year — mid-December covers the current year early enough to act on year
 
 ## Trigger
 
-- Scheduled: December 15 at 9am local (`0 9 15 12 *`), wired via `routines/schedule.md` as the `finance-annual-review` task.
 - On demand: user says "run the annual" / "year-end review" / "close out 2026."
 - Life-event hygiene can also call this routine at year-end.
+- This advisor is pull-based. Mid-December is a good moment for tax-year moves — a calendar reminder is the right nudge.
 
 ## Flow
 

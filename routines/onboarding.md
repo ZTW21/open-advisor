@@ -413,7 +413,7 @@ Run this checklist before considering onboarding done:
 - [ ] `memory/MEMORY.md` — has pointers to every new memory file written.
 - [ ] `STRATEGY.md` — has a current-stance paragraph and a 30-day list.
 - [ ] If `rules.md § Cash & liquidity` is empty AND user has no emergency fund, `memory/watchlist/emergency-fund.md` exists.
-- [ ] **Scheduling:** offer to register the seven scheduled jobs per `routines/schedule.md` (daily brief, weekly brief, monthly/quarterly/annual reports, automation audit, nightly sync). If the user accepts, create them via `create_scheduled_task` and record task IDs in `state/schedule.md`. If they decline, write `state/schedule.md` with a "user runs routines on demand" note.
+- [ ] **Cadence expectations set:** before closing, tell the user this advisor is pull-based — nothing runs automatically. Cadence reports (daily, weekly, monthly, quarterly, annual) all run when they ask; the user picks the rhythm that fits their life. If they want regular nudges, a phone/calendar reminder is the right tool.
 
 ---
 
