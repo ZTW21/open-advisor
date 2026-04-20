@@ -66,6 +66,11 @@ data/finance.sqlite-shm
 # DB backups — local only
 data/backups/
 
+# Web dashboard — Vite build output (built from web-ui/ source)
+src/finance_advisor/web/static/
+web-ui/node_modules/
+web-ui/dist/
+
 # Python artifacts (Phase 1+)
 __pycache__/
 *.pyc
@@ -99,8 +104,11 @@ desktop.ini
 credentials.json
 
 # Sync adapter credentials (SimpleFIN token, Plaid config).
-# Phase 12+. These live at 0600; double-belt and just never track them.
+# These live at 0600; double-belt and just never track them.
 data/secrets/
+
+# Sync state (last-synced timestamps per account). Not sensitive but ephemeral.
+data/sync/simplefin_state.json
 
 # Raw bank statements are personal — don't push them anywhere.
 # JSON exports of aggregated transactions (data/exports/) ARE tracked;

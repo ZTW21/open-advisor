@@ -20,6 +20,8 @@ This project is a fourth option: your data stays local, the files are human-read
 
 - **A guided onboarding routine.** The advisor walks you through who you are, what you own, what you owe, what you want, and what rules you want to live by. Everything it learns goes into editable markdown files.
 - **A deterministic CLI (`finance`)** that owns every number: imports, dedup, categorization, net worth, cash flow, rebalance drift, debt payoff schedules, budget vs. actual, fees audit, tax-pack generation, subscription detection, behavioral-mode classification.
+- **A local web dashboard** (`finance dashboard`) that visualizes every CLI feature — net worth trends, cashflow charts, debt payoff simulator, allocation drift, goal tracking, and more. Same DB, same analytics, no cloud.
+- **SimpleFIN bank sync.** Connect your banks once, then pull transactions and balances with a single command. Dedup handles overlapping imports. Accounts that SimpleFIN can't reach (Apple Card, Bilt) fall back to manual CSV drop — both paths feed into the same pipeline.
 - **Cadence routines on demand.** Ask for a one-sentence daily, a ~150-word weekly, a monthly report, a quarterly review, or an annual review. All observational — the advisor flags; you decide. Nothing runs on a schedule; you pull it when you want it.
 - **A structured memory system.** The advisor remembers your stated preferences, corrections, decisions, and observed patterns — and cites them when it advises.
 - **A master strategy (`STRATEGY.md`)** it maintains on your behalf, broken into Long arc / Next 12 months / Next 30 days. You never write this by hand.
@@ -49,8 +51,8 @@ your-finance-dir/
   rules.md             Your personal guardrails
   goals.md             What you're working toward
 
-  bin/finance          CLI entry point
-  src/finance_advisor/ Python source: importers, dedup, analytics, routines
+  src/finance_advisor/ Python source: importers, dedup, analytics, sync, web
+  web-ui/              React + Vite dashboard source (builds to src/.../web/static/)
   tests/               Fixtures and unit tests
 
   data/
@@ -58,6 +60,7 @@ your-finance-dir/
     exports/           JSON snapshots (committed to git for history)
     backups/           Dated DB snapshots (git-ignored)
     secrets/           Sync tokens (git-ignored; 0600)
+    sync/              Account mappings and sync state
 
   memory/              Structured memory system
     MEMORY.md          Index, always loaded
@@ -77,7 +80,7 @@ your-finance-dir/
 
 ## Quickstart
 
-Requirements: Python 3.10+.
+Requirements: Python 3.10+. Node 18+ for the web dashboard (optional).
 
 ```bash
 # 1. Clone the framework
@@ -85,13 +88,21 @@ git clone https://github.com/<your-username>/open-advisor.git my-money
 cd my-money
 
 # 2. Install dependencies
-pip install -e .
+pip install -e ".[web]"     # includes web dashboard; or just `pip install -e .` for CLI-only
 
 # 3. Initialize the database and hydrate the user templates
-bin/finance init
+finance init
 
 # 4. Ask your AI assistant to run onboarding
 #    (see routines/onboarding.md — any Claude-capable assistant can follow it)
+
+# 5. (Optional) Connect your banks via SimpleFIN
+finance sync setup-simplefin --token <your_token>    # one-time setup
+finance sync --adapter simplefin --list-accounts     # see what's available
+finance sync map --remote-id <id> --account <name>   # link each account
+
+# 6. (Optional) Launch the web dashboard
+finance dashboard
 ```
 
 `finance init` creates the SQLite database and copies the user-facing scaffolds (`STRATEGY.md`, `profile.md`, `principles.md`, `rules.md`, `goals.md`, `state/*.md`, `memory/MEMORY.md`) out of `templates/` and into the finance directory. It's idempotent and non-destructive — re-run it any time to pick up new templates without touching files you've already populated.
@@ -108,6 +119,7 @@ For a worked example of what a populated directory looks like, see [`examples/ex
 
 You interact through your AI assistant, not the CLI directly. Typical turns:
 
+- "Sync my accounts" → pulls transactions and balances from all SimpleFIN-linked accounts in one command.
 - "What's my net worth?" → runs `finance net-worth`, cites the DB.
 - "Where did my money go this month?" → runs `finance cashflow --last 30d`.
 - "I got a $5k bonus. What should I do with it?" → follows `routines/windfall.md`, honoring any preferences in `memory/preferences/`.
@@ -115,7 +127,9 @@ You interact through your AI assistant, not the CLI directly. Typical turns:
 - "The market is down 15% — should I sell?" → follows `routines/loss-aversion.md`, quotes your own `rules.md` back at you verbatim.
 - "Give me the weekly" → runs the weekly routine against the last seven days. Ask whenever you want one.
 
-If you want to poke the CLI directly, everything supports `--json` and has stable error codes. See `bin/finance --help`.
+You can also browse everything visually at `http://127.0.0.1:8765` after running `finance dashboard`.
+
+If you want to poke the CLI directly, everything supports `--json` and has stable error codes. See `finance --help`.
 
 ## Privacy
 
@@ -131,6 +145,6 @@ MIT. See [`LICENSE`](LICENSE).
 
 ## Status
 
-**v1.0.0** — feature-complete for single-user US usage. The default `csv_inbox` sync adapter (drop a statement into `transactions/inbox/`, run `finance import`) is fully supported. SimpleFIN and Plaid adapters are scaffolded with a stable adapter contract but not wired to the network — they return a structured `not_configured` / `not_implemented` error until someone ships the client code.
+**v1.2.0** — feature-complete for single-user US usage. SimpleFIN bank sync is live — connect your banks and pull transactions + balances with one command. A local web dashboard (`finance dashboard`) visualizes all analytics. Manual CSV/OFX import remains the fallback for banks SimpleFIN can't reach.
 
-Known deferred work: multi-household finances, non-US tax regimes, investment holdings snapshots (brokerage positions vs. cash balances). See [`CHANGELOG.md`](CHANGELOG.md) for what shipped in v1.0.0 and [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to help.
+Known deferred work: multi-household finances, non-US tax regimes, investment holdings snapshots, Plaid adapter, write-capable dashboard features. See [`CHANGELOG.md`](CHANGELOG.md) for the full history.

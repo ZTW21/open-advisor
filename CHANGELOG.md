@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/); version numbers follow [SemVer](https://semver.org/).
 
+## [1.2.0] — 2026-04-19
+
+SimpleFIN bank sync, a local web dashboard, and an advisor insights system.
+
+### Added
+
+- **SimpleFIN bank sync — live.** `finance sync setup-simplefin --token <token>` claims a one-time setup token and stores the access URL. `finance sync --adapter simplefin` pulls transactions and balances for all mapped accounts since the last sync. Account mapping via `finance sync map` / `unmap` / `status`. Smart `--since` default: fetches from last sync date, not a fixed lookback.
+- **Auto-import.** `finance sync --adapter simplefin --auto-import` chains sync → import in one step. Still dry-run by default; add `--commit` for full automation. Dedup handles overlap between SimpleFIN pulls and manual CSV imports.
+- **Balance sync.** SimpleFIN responses include account balances; the sync command now writes them to `balance_history` automatically. Sign convention normalized (credit card balances stored as positive = amount owed).
+- **Local web dashboard.** `finance dashboard` boots a FastAPI + React SPA at `http://127.0.0.1:8765`. Read-only. 20 API endpoints covering every analytics function. 15 pages: Overview, Net Worth, Accounts, Cashflow, Transactions, Budget, Goals, Debt (with payoff simulator), Allocation, Fees, Anomalies, Recurring, Categories, Afford, Reports. Install with `pip install open-advisor[web]`.
+- **Advisor insights system.** 10 financial insight generators that analyze transaction and balance data to surface actionable observations — spending spikes, recurring charge changes, savings rate trends, and more. Insights persist in the DB (`005_insights.sql` migration) and display on the dashboard landing page. Each insight includes a category, severity, and human-readable explanation.
+- **`web` optional dependency group** in `pyproject.toml`: `fastapi>=0.115`, `uvicorn[standard]>=0.34`.
+
+### Changed
+
+- `finance sync` is now a command group with subcommands (`setup-simplefin`, `map`, `unmap`, `status`). The existing `--adapter` / `--list` / `--list-accounts` flags still work as before.
+- CLAUDE.md sync routing updated: "sync my accounts" now runs SimpleFIN with auto-import.
+- SimpleFIN adapter (`sync/simplefin_stub.py`) rewritten from stub to live implementation.
+
+### Tests
+
+292 passing (245 carried over + 26 SimpleFIN + 21 insights).
+
+---
+
 ## [1.1.0] — 2026-04-17
 
 Pull-based cadence and an upgrade-safe layout. No data migration required — existing v1.0.0 installs pick this up with `git pull` and a re-run of `finance init`.
@@ -102,6 +127,6 @@ Seven scheduled jobs wired via the `schedule` skill during onboarding, all in lo
 - Multi-household / partner finances.
 - Non-US tax regimes and retirement account types.
 - Investment holdings snapshots (brokerage positions beyond cash balances).
-- Network client code for the SimpleFIN and Plaid sync adapters.
+- Plaid sync adapter (contract is stable; client code not yet written).
 
 These are good first issues — the contracts are stable.

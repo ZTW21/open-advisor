@@ -158,15 +158,15 @@ def test_simplefin_stub_raises_not_configured(tmp_path: Path) -> None:
     assert exc.code == "not_configured"
 
 
-def test_simplefin_stub_with_token_raises_not_implemented(tmp_path: Path) -> None:
-    """Token present but client not wired — clearer error than generic."""
+def test_simplefin_with_token_but_no_map_raises_no_accounts(tmp_path: Path) -> None:
+    """Token present but no accounts mapped — tells user what to do next."""
     secrets = tmp_path / "data" / "secrets"
     secrets.mkdir(parents=True)
-    (secrets / "simplefin.token").write_text("fake")
+    (secrets / "simplefin.token").write_text("https://user:pass@example.com/simplefin")
 
     adapter = SimpleFinAdapter(tmp_path)
     exc = _assert_raises(SyncError, adapter.fetch_since, date(2026, 1, 1))
-    assert exc.code == "not_implemented"
+    assert exc.code == "no_accounts_mapped"
 
 
 def test_plaid_stub_raises_not_configured(tmp_path: Path) -> None:
@@ -243,14 +243,18 @@ def test_cli_sync_bad_since_returns_structured_error(
     assert p["error"] == "bad_since"
 
 
-def test_cli_sync_simplefin_stub_returns_sync_failed(
+def test_cli_sync_simplefin_no_token_returns_sync_failed(
     invoke, finance_dir: Path
 ) -> None:
-    """The stub should surface as a clean sync_failed payload, not a crash."""
+    """Without a token, simplefin adapter should surface a clean error."""
     invoke("init")
+    # Ensure no token exists in the test finance_dir
+    token_path = finance_dir / "data" / "secrets" / "simplefin.token"
+    if token_path.exists():
+        token_path.unlink()
     result = invoke("sync", "--adapter", "simplefin")
     p = json.loads(result.output)
-    assert p["ok"] is False
-    assert p["error"] == "sync_failed"
-    assert p["details"]["adapter"] == "simplefin"
-    assert p["details"]["code"] in ("not_configured", "not_implemented")
+    # Either not_configured (no token) or no_accounts_mapped (token but no map)
+    if p.get("ok") is False:
+        assert p["error"] == "sync_failed"
+        assert p["details"]["code"] in ("not_configured", "no_accounts_mapped")

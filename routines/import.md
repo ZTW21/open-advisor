@@ -22,9 +22,28 @@ This is how you (the advisor) bring new statements into the database. The CLI do
 
 ## Trigger
 
-- User drops files in `transactions/inbox/` and asks you to import.
+- User says "sync my accounts" or "pull my transactions" → run the SimpleFIN sync path (see below).
+- User drops files in `transactions/inbox/` and asks you to import → run the manual CSV path.
 - You notice files in `inbox/` at the start of a routine (daily, weekly) — surface them but don't auto-import.
-- A scheduled job notifies the user that files are waiting; user responds yes.
+
+## SimpleFIN sync path (preferred for linked accounts)
+
+For accounts connected via SimpleFIN (Chase, Ally, and any others mapped), use:
+
+```
+finance --json sync --adapter simplefin --auto-import --commit
+```
+
+This single command:
+1. Pulls new transactions since the last sync for all mapped accounts.
+2. Updates balances in `balance_history` from SimpleFIN's response.
+3. Imports, deduplicates, categorizes, and commits the transactions.
+
+Report the results to the user: new transactions per account, duplicates skipped, balances updated.
+
+For accounts SimpleFIN can't reach (Apple Card, Bilt, etc.), fall back to the manual CSV flow below.
+
+## Manual CSV path (fallback)
 
 ## Flow
 

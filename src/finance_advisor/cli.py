@@ -14,6 +14,7 @@ from finance_advisor.commands import (
     balance,
     cashflow,
     categorize,
+    dashboard,
     export,
     fees,
     import_,
@@ -79,6 +80,7 @@ cli.add_command(taxpack.taxpack)
 cli.add_command(mode.mode)
 cli.add_command(automation.automation)
 cli.add_command(sync.sync)
+cli.add_command(dashboard.dashboard)
 
 
 if __name__ == "__main__":

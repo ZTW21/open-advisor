@@ -21,7 +21,7 @@ Details are in `CLAUDE.md § The inviolable rules`.
 src/finance_advisor/
   cli.py                   Click root group
   commands/                One file per subcommand (finance <cmd>)
-  sync/                    Pluggable sync adapters
+  sync/                    Pluggable sync adapters (SimpleFIN is live)
   importers/               CSV/OFX parsers
   migrations/              SQLite migrations (numbered)
   analytics.py             Pure functions over the DB
@@ -30,10 +30,14 @@ src/finance_advisor/
   db.py                    Connection + migration runner
   config.py                Path resolution (find_finance_dir, ...)
   output.py                emit() / emit_error() — the --json surface
+  web/                     FastAPI dashboard (optional; pip install open-advisor[web])
+    server.py              App factory, static mount
+    deps.py                get_db() / get_config() DI
+    routers/               One file per API domain (19 routers)
 
+web-ui/                    React + Vite + Tailwind source for the dashboard
 tests/                     One file per subcommand; conftest.py has fixtures
 routines/                  Markdown specs for AI-driven routines
-bin/finance                Thin wrapper — just runs python -m finance_advisor
 ```
 
 ## Adding a new CLI command
@@ -94,11 +98,11 @@ The project runs in environments without pytest installed via a fallback harness
 
 ## What we probably won't accept
 
-- **A web UI.** The markdown-and-CLI surface is intentional. A UI belongs in a separate project that wraps this one.
 - **Cloud sync, hosted accounts, telemetry.** See "Design invariants."
 - **Security-specific recommendations.** See "Specificity rule."
-- **Heavy dependencies.** The core CLI has one required dependency (`click`). Optional extras like `rich` and `ofxtools` are fine; adding another required dep needs a strong case.
+- **Heavy dependencies.** The core CLI has one required dependency (`click`). Optional extras like `rich`, `ofxtools`, `fastapi`, and `uvicorn` are fine behind extras groups; adding another required dep needs a strong case.
 - **Complex ML/LLM calls from inside the CLI.** The CLI is deterministic. The AI assistant is the one doing inference; the CLI just answers its questions.
+- **Write-capable dashboard endpoints.** The web dashboard is read-only by design. Mutations go through the CLI's dry-run → confirm → commit path.
 
 ## Questions
 

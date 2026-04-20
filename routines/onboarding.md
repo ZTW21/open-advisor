@@ -168,6 +168,21 @@ Each section below gives you: what to ask, how to probe, and exactly where to wr
 
 **When done:** write the list of account nicknames to `memory/onboarding.md § Assets & accounts`.
 
+**Bank sync setup (optional, after all accounts are added):**
+
+After all accounts exist in the database, offer to set up SimpleFIN for automated transaction and balance pulling:
+
+> "Want to connect your banks so I can pull transactions automatically? It takes about 5 minutes — you'll set up a read-only connection through SimpleFIN Bridge. Some banks (like Apple Card, Bilt) aren't supported yet — for those, you'll still download CSVs manually."
+
+If yes:
+1. Direct the user to https://bridge.simplefin.org/simplefin/create to connect their banks and get a setup token.
+2. Run `finance sync setup-simplefin --token <token>`.
+3. Run `finance sync --adapter simplefin --list-accounts` to see what's available.
+4. For each remote account, map it: `finance sync map --remote-id <id> --account <local_name>`.
+5. Test with `finance sync --adapter simplefin --auto-import` (dry-run) to verify the pull works.
+
+Note which accounts are SimpleFIN-linked and which require manual CSV import in `memory/onboarding.md § Sync setup`.
+
 ## Section 4 — What you owe *(~8 min)*
 
 **Writes to:** `state/debts.md`, DB via `finance account add` (type `credit_card`, `loan`, or `mortgage`), `memory/facts/debts.md` (one per meaningful debt with its why).

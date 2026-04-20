@@ -209,7 +209,7 @@ def import_cmd(
     moved_to: Optional[str] = None
     try:
         acct = conn.execute(
-            "SELECT id, name FROM accounts WHERE name = ?", (account,)
+            "SELECT id, name, sign_convention FROM accounts WHERE name = ?", (account,)
         ).fetchone()
         if acct is None:
             emit_error(
@@ -219,6 +219,21 @@ def import_cmd(
                 details={"name": account},
             )
             return
+
+        # Normalize signs before prepare (which computes dedup keys).
+        # credit_positive accounts (Apple Card, BILT) store purchases as
+        # positive in their exports — flip so positive = inflow everywhere.
+        if acct["sign_convention"] == "credit_positive":
+            raw_rows = [
+                ParsedRow(
+                    source_line=r.source_line,
+                    date_raw=r.date_raw,
+                    amount=-r.amount,
+                    description=r.description,
+                    posted_id=r.posted_id,
+                )
+                for r in raw_rows
+            ]
 
         prepared = _prepare_rows(acct["id"], raw_rows)
         new_rows, dup_rows = _split_new_vs_dup(conn, prepared)

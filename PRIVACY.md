@@ -31,13 +31,19 @@ If any of the above ends up in a file because you typed it, the advisor should c
 
 The CLI (`finance …`) is entirely offline. It reads and writes local files and the local SQLite database. It makes zero outbound network calls.
 
-The only network-capable component is the optional **sync adapter layer** (`src/finance_advisor/sync/`):
+Network-capable components:
 
-- `csv_inbox` (default) — does not touch the network. It only inventories files you've dropped into `transactions/inbox/`.
-- `simplefin` (stubbed in this release) — when implemented, will fetch transactions from SimpleFIN Bridge using a user-held token. Read-only by design; SimpleFIN tokens cannot move money.
-- `plaid` (stubbed in this release) — when implemented, will use Plaid Link. Credentials pass between you and Plaid; they never pass through our code.
+- **Sync adapter layer** (`src/finance_advisor/sync/`):
+  - `csv_inbox` (default) — does not touch the network. It only inventories files you've dropped into `transactions/inbox/`.
+  - `simplefin` — fetches transactions and balances from SimpleFIN Bridge using a user-held access token stored at `data/secrets/simplefin.token`. Read-only by design; SimpleFIN tokens cannot move money, change passwords, or access anything beyond transaction history. The only outbound calls go to `beta-bridge.simplefin.org`.
+  - `plaid` (stubbed) — when implemented, will use Plaid Link. Credentials pass between you and Plaid; they never pass through our code.
 
-Even when a network adapter is active, it only writes files to `transactions/inbox/`. It does NOT import transactions into the database; the normal `finance import` dry-run → confirm flow still applies. This keeps the trust boundary explicit.
+  Sync adapters write CSV files to `transactions/inbox/`. The `--auto-import` flag chains into the import pipeline, but the same dedup and categorization rules apply regardless of source.
+
+- **Web dashboard** (`finance dashboard`):
+  - Runs a local HTTP server on `127.0.0.1:8765` (configurable). Read-only — it queries the same SQLite database the CLI uses.
+  - Makes zero outbound network calls. All data stays on your machine.
+  - Accessible only from localhost by default. Use `--host 0.0.0.0` only if you want LAN access (and understand the implications).
 
 ## The AI assistant
 
